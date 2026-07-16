@@ -1,114 +1,148 @@
 # pi-todo-rail
 
-A restrained, branch-aware Todo extension for [Pi](https://pi.dev). It keeps the current task visible above the editor, lets the agent advance verified work automatically, and gives the user a fast keyboard panel for corrections.
+> **A live execution rail for Pi.**
 
-## Highlights
+Plans are cheap. Staying on the right step is the work.
 
-- **Branch-aware state** — Todo snapshots live in the Pi session, so forks and tree navigation restore the correct list.
-- **Verified automatic progress** — The agent marks a step done only after implementation and verification.
-- **Current-task rail** — The first unfinished item stays visible above the editor with progress and shortcuts.
-- **Animated handoff** — A completed current item transitions through `x old` → `→ next` → `* next` in about 200ms.
-- **Keyboard panel** — `/todo` opens a focused list for selecting, focusing, completing, and reopening items.
-- **Plain-text transcript** — Tool results use compact ASCII receipts without decorative color or background bands.
-- **Model/UI separation** — Model-facing tool content stays stable English and UI state is rendered from structured details.
+`pi-todo-rail` keeps one verified next action in sight, lets Pi close the loop when the work is actually done, and restores the right plan when the session branches.
+
+```text
+*  Verify the fix                         Ctrl+R previous · Ctrl+N done · 2/4
+```
+
+When the current step passes verification, the rail hands off—quietly:
+
+```text
+x  Verify the fix
+→  Run the regression suite
+*  Run the regression suite
+```
+
+No dashboard. No project file. No second source of truth.
 
 ## Install
-
-From npm:
 
 ```bash
 pi install npm:pi-todo-rail
 ```
 
-From GitHub:
+Or pin the GitHub release:
 
 ```bash
 pi install git:github.com/j-joker/pi-todo-rail@v0.1.0
 ```
 
-Try it for one run without installing:
+Try it without installing:
 
 ```bash
 pi -e npm:pi-todo-rail
 ```
 
-Run `/reload` after changing between a local development copy and the installed package.
+## Why it feels different
 
-## Usage
+### The current step never disappears
 
-Ask Pi to plan multi-step work, or manage tasks directly:
+The first unfinished task stays above the editor. Long plans collapse into one quiet line; progress remains visible even in narrow terminals.
+
+### “Done” means verified
+
+Pi is instructed to advance a task only after it has been implemented **and** verified. The user can still reopen, reorder, or override anything from the panel.
+
+### Branches keep their own truth
+
+Todo snapshots live in the Pi session. Fork a conversation, navigate the tree, or resume later—the list returns to the state that belongs to that branch.
+
+## The panel
+
+Run `/todo`:
 
 ```text
-/todo                         Open the interactive panel
-/todo add <text>              Add a task
-/todo list                    Print the current list
-/todo done <ID>               Complete or reopen a task
-/todo rm <ID>                 Remove a task
-/todo clear-done              Remove completed tasks
-/todo reset                   Reset the list after confirmation
+  x  Ship the parser
+> *  Verify the fix
+     Write the changelog
+
+↑/↓ select   Enter current   Space done/reopen   Esc close
 ```
 
-### Panel controls
+The markers have one job each:
 
 ```text
-↑ / ↓       Select
-Enter       Set selected task as current
-Space       Complete or reopen
-Esc         Close
-```
-
-The panel uses distinct markers:
-
-```text
-> *  selected and current
-  *  current
 >    selected
-  x  done
+*    current
+x    done
 ```
 
-### Editor shortcuts
+They compose without ambiguity:
+
+```text
+> *  selected + current
+```
+
+## Fast path
 
 ```text
 Ctrl+N      Complete the current task
 Ctrl+R      Return to the previous task
 ```
 
-These shortcuts wrap the active Pi editor component. If another terminal workflow already owns either key, use the `/todo` panel instead.
+The shortcuts wrap Pi’s active editor component. If your terminal workflow already owns either key, use `/todo` instead.
 
-## Agent tool
-
-The extension registers a `todo` tool with these actions:
+## Commands
 
 ```text
-list, add, update, start, done, block, remove, reorder, clear_done, replace
+/todo                         Open the panel
+/todo add <text>              Add a task
+/todo list                    Print the list
+/todo done <ID>               Complete or reopen
+/todo rm <ID>                 Remove
+/todo clear-done              Clear completed tasks
+/todo reset                   Reset after confirmation
 ```
 
-The current item is always the first unfinished Todo. Agent guidance requires `done` immediately after a step is implemented and verified; reopening remains user-controlled.
+## Built for the agent loop
 
-## Handoff animation
-
-Task handoff is non-blocking and only runs when the previous current item has actually become done:
+The extension registers a branch-aware `todo` tool:
 
 ```text
-x  Previous task
-→  Next task
-*  Next task
+list · add · update · start · done · block
+remove · reorder · clear_done · replace
 ```
 
-Disable motion when needed:
+The important rule is simple:
+
+> Implement. Verify. Then mark done.
+
+The current task is always derived from the first unfinished item—there is no separate “active” flag to drift out of sync.
+
+## Motion with a reason
+
+The handoff animation exists to explain causality, not decorate the terminal:
+
+```text
+x old  →  → next  →  * next
+```
+
+It runs for about 200ms, never blocks input, and only plays when the previous current task has actually become done.
+
+Disable it when needed:
 
 ```bash
 TODO_MOTION=0 pi
-# Also honored: REDUCE_MOTION=1, PI_REDUCED_MOTION=1, CI, TERM=dumb
 ```
 
-Session restore and tree navigation never animate.
+Also respected: `REDUCE_MOTION=1`, `PI_REDUCED_MOTION=1`, `CI`, and `TERM=dumb`. Session restore and tree navigation never animate.
 
-## State model
+<details>
+<summary><strong>How state works</strong></summary>
 
-State is persisted in structured tool-result details and manual `todo-state` session entries. No project files or external databases are created. Restoring a branch replays the latest valid snapshot for that branch.
+State is stored in structured tool-result details and manual `todo-state` session entries. No database or project file is created. On restore, the extension reads the latest valid snapshot on the active branch.
 
-## Development
+This makes the Todo list naturally follow Pi’s session semantics instead of inventing a parallel persistence model.
+
+</details>
+
+<details>
+<summary><strong>Development</strong></summary>
 
 Requires Node.js 22.19+ and Pi 0.80+.
 
@@ -120,16 +154,18 @@ npm test
 pi -e .
 ```
 
-Validate the npm tarball before release:
+Validate the release tarball:
 
 ```bash
 npm run pack:check
 ```
 
+</details>
+
 ## Security
 
-Pi extensions run with the user's full system permissions. Review extension source before installation. This package does not start network services, spawn subprocesses, or write external state.
+Pi extensions run with the user’s full system permissions. Review extension source before installation. `pi-todo-rail` does not start network services, spawn subprocesses, or write external state.
 
 ## License
 
-MIT
+MIT — [j-joker/pi-todo-rail](https://github.com/j-joker/pi-todo-rail)
