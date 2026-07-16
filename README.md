@@ -1,10 +1,12 @@
 # pi-todo-rail
 
-> **A live execution rail for Pi.**
+> **A shared execution rail for you and Pi.**
 
-Plans are cheap. Staying on the right step is the work.
+One plan. Two operators.
 
-`pi-todo-rail` keeps one verified next action in sight, lets Pi close the loop when the work is actually done, and restores the right plan when the session branches.
+Pi can plan the work, record context, and advance a step after verification. You can see every move, choose what is current, complete or reopen anything, and take over at any moment.
+
+`pi-todo-rail` is not an agent’s private checklist. It is the visible control surface between human judgment and agent execution.
 
 ```text
 *  Verify the fix                         Ctrl+R previous · Ctrl+N done · 2/4
@@ -18,7 +20,7 @@ x  Verify the fix
 *  Run the regression suite
 ```
 
-No dashboard. No project file. No second source of truth.
+No hidden agent checklist. No project file. No second source of truth.
 
 ## Install
 
@@ -40,17 +42,21 @@ pi -e npm:pi-todo-rail
 
 ## Why it feels different
 
-### The current step never disappears
+### The work is visible to both sides
 
-The first unfinished task stays above the editor. Long plans collapse into one quiet line; progress remains visible even in narrow terminals.
+The first unfinished task stays above the editor. Pi sees the same current step in its runtime context that you see in the rail. There is no hidden plan drifting away from the conversation.
 
-### “Done” means verified
+### Pi advances; you steer
 
-Pi is instructed to advance a task only after it has been implemented **and** verified. The user can still reopen, reorder, or override anything from the panel.
+Pi is instructed to mark a task done only after it has been implemented **and** verified. You can set a different current task, complete or reopen an item, reorder the plan, or remove work that no longer matters.
+
+### Human control is always one key away
+
+The rail is ambient; `/todo` is the cockpit. Long plans collapse into one quiet line until you choose to inspect or intervene.
 
 ### Branches keep their own truth
 
-Todo snapshots live in the Pi session. Fork a conversation, navigate the tree, or resume later—the list returns to the state that belongs to that branch.
+Todo snapshots live in the Pi session. Fork a conversation, navigate the tree, or resume later—the shared list returns to the state that belongs to that branch.
 
 ## The panel
 
@@ -99,20 +105,26 @@ The shortcuts wrap Pi’s active editor component. If your terminal workflow alr
 /todo reset                   Reset after confirmation
 ```
 
-## Built for the agent loop
+## One list. Two operators.
 
-The extension registers a branch-aware `todo` tool:
+```text
+YOU   inspect · choose · complete · reopen · override
+PI    plan · update · note · verify · advance
+BOTH  share the same current task, progress, and branch history
+```
+
+Pi gets a branch-aware `todo` tool:
 
 ```text
 list · add · update · start · done · block
 remove · reorder · clear_done · replace
 ```
 
-The important rule is simple:
+The collaboration contract is simple:
 
-> Implement. Verify. Then mark done.
+> Pi moves verified work forward. You can redirect it at any moment.
 
-The current task is always derived from the first unfinished item—there is no separate “active” flag to drift out of sync.
+The current task is always derived from the first unfinished item—there is no separate “active” flag to drift out of sync between human and agent.
 
 ## Motion with a reason
 
@@ -137,7 +149,7 @@ Also respected: `REDUCE_MOTION=1`, `PI_REDUCED_MOTION=1`, `CI`, and `TERM=dumb`.
 
 State is stored in structured tool-result details and manual `todo-state` session entries. No database or project file is created. On restore, the extension reads the latest valid snapshot on the active branch.
 
-This makes the Todo list naturally follow Pi’s session semantics instead of inventing a parallel persistence model.
+This makes the shared Todo list naturally follow Pi’s session semantics instead of inventing a parallel persistence model for either side.
 
 </details>
 

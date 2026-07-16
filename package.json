@@ -1,7 +1,7 @@
 {
   "name": "pi-todo-rail",
   "version": "0.1.0",
-  "description": "A branch-aware Todo rail for Pi with automatic verified progress, keyboard control, and animated task handoff.",
+  "description": "A shared, branch-aware execution rail for humans and agents in Pi.",
   "type": "module",
   "license": "MIT",
   "author": "j-joker",
