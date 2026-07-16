@@ -9,10 +9,10 @@ A code review produces findings. A deep explanation produces concepts and open q
 `pi-todo-rail` keeps that human-shaped plan visible to both sides. Pi can record context and advance verified work; you can inspect, steer, complete, reopen, or take over at any moment.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/j-joker/pi-todo-rail/main/assets/handoff.gif" width="900" alt="Real Pi terminal capture showing a verified task completing and the Todo rail handing off to the next task">
+  <img src="https://raw.githubusercontent.com/j-joker/pi-todo-rail/main/assets/decompose.gif" width="900" alt="Real Pi terminal capture showing model review output, a human asking Pi to turn it into a Todo plan, and Pi materializing three shared tasks">
 </p>
 
-<p align="center"><sub>Real Pi TUI · verified completion · non-blocking handoff</sub></p>
+<p align="center"><sub>Real Pi TUI · model output → human direction → shared execution plan</sub></p>
 
 No hidden agent checklist. No project file. No second source of truth.
 
@@ -147,6 +147,10 @@ x old  →  → next  →  * next
 ```
 
 It runs for about 200ms, never blocks input, and only plays when the previous current task has actually become done.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/j-joker/pi-todo-rail/main/assets/handoff.gif" width="900" alt="Real Pi terminal capture of the Todo rail handing off from a verified task to the next current task">
+</p>
 
 Disable it when needed:
 

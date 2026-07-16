@@ -36,8 +36,8 @@
     "extensions": [
       "./index.ts"
     ],
-    "video": "https://raw.githubusercontent.com/j-joker/pi-todo-rail/main/assets/handoff.mp4",
-    "image": "https://raw.githubusercontent.com/j-joker/pi-todo-rail/main/assets/rail.png"
+    "video": "https://raw.githubusercontent.com/j-joker/pi-todo-rail/main/assets/decompose.mp4",
+    "image": "https://raw.githubusercontent.com/j-joker/pi-todo-rail/main/assets/decompose.png"
   },
   "scripts": {
     "test": "node --experimental-transform-types render.test.ts",
