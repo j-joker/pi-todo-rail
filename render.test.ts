@@ -207,6 +207,7 @@ registerTodoTool(
 	() => {},
 );
 assert.ok(registeredTool, "todo tool should register");
+assert.equal(registeredTool.renderShell, "self", "todo tool should bypass Pi's colored default shell");
 const callText = registeredTool.renderCall({ action: "add", text: "Verify tool card" }, theme).render(80).join("\n");
 assert.match(callText, /Todo\s+add/);
 assert.ok(!callText.includes("Verify tool card"), "call row should not repeat the todo text");

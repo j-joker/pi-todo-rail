@@ -84,6 +84,7 @@ export function registerTodoTool(pi: ExtensionAPI, store: TodoStore, onChange: (
 	pi.registerTool({
 		name: "todo",
 		label: "Todo",
+		renderShell: "self",
 		description:
 			"Manage the current session branch's todo list. Mark an item done immediately after its work is implemented and verified. The current item is always the first unfinished one. Use reorder or start to change what is current, and note to record context or blockers. Reopening remains user-controlled.",
 		promptSnippet: "Manage the branch-aware todo list and mark verified work done",

@@ -39,7 +39,7 @@ pi install npm:pi-todo-rail
 Or pin the GitHub release:
 
 ```bash
-pi install git:github.com/j-joker/pi-todo-rail@v0.1.1
+pi install git:github.com/j-joker/pi-todo-rail@v0.1.2
 ```
 
 Try it without installing:

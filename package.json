@@ -1,6 +1,6 @@
 {
   "name": "pi-todo-rail",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Turn model output into a human-shaped, branch-aware execution rail for you and Pi.",
   "type": "module",
   "license": "MIT",
