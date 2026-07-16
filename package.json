@@ -1,7 +1,7 @@
 {
   "name": "pi-todo-rail",
   "version": "0.1.1",
-  "description": "A shared, branch-aware execution rail for humans and agents in Pi.",
+  "description": "Turn model output into a human-shaped, branch-aware execution rail for you and Pi.",
   "type": "module",
   "license": "MIT",
   "author": "j-joker",

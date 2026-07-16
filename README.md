@@ -1,12 +1,12 @@
 # pi-todo-rail
 
-> **A shared execution rail for you and Pi.**
+> **Turn model output into a plan you and Pi can execute.**
 
-One plan. Two operators.
+Model proposes. You decompose. Both move the work forward.
 
-Pi can plan the work, record context, and advance a step after verification. You can see every move, choose what is current, complete or reopen anything, and take over at any moment.
+A code review produces findings. A deep explanation produces concepts and open questions. A planning session produces risks, experiments, and decisions. You decide what deserves a Todo, how small it should be, and what comes first.
 
-`pi-todo-rail` is not an agent’s private checklist. It is the visible control surface between human judgment and agent execution.
+`pi-todo-rail` keeps that human-shaped plan visible to both sides. Pi can record context and advance verified work; you can inspect, steer, complete, reopen, or take over at any moment.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/j-joker/pi-todo-rail/main/assets/handoff.gif" width="900" alt="Real Pi terminal capture showing a verified task completing and the Todo rail handing off to the next task">
@@ -15,6 +15,20 @@ Pi can plan the work, record context, and advance a step after verification. You
 <p align="center"><sub>Real Pi TUI · verified completion · non-blocking handoff</sub></p>
 
 No hidden agent checklist. No project file. No second source of truth.
+
+## The missing step between output and action
+
+Most Todo tools begin after decomposition—when someone already knows exactly what the tasks are. `pi-todo-rail` begins one step earlier, inside the conversation.
+
+```text
+CODE REVIEW   findings      → choose → split → fix → verify
+LEARNING      big concept   → map → question → practice → teach back
+PLANNING      model output  → judge → sequence → execute → revise
+```
+
+The model supplies breadth. The human supplies judgment and granularity. The rail turns the result into shared execution state.
+
+You can add the chosen steps directly with `/todo add`, shape them in the panel, or ask Pi to materialize your decomposition. The important part is that the plan remains visible and editable after the conversation moves on.
 
 ## Install
 
@@ -36,9 +50,13 @@ pi -e npm:pi-todo-rail
 
 ## Why it feels different
 
-### The work is visible to both sides
+### Human judgment shapes the plan
 
-The first unfinished task stays above the editor. Pi sees the same current step in its runtime context that you see in the rail. There is no hidden plan drifting away from the conversation.
+Model output is input, not authority. You choose which review findings matter, where a concept needs another learning step, and whether a task should be split, reordered, or discarded.
+
+### The shaped plan is visible to both sides
+
+The first unfinished task stays above the editor. Pi sees the same human-curated current step in its runtime context that you see in the rail. There is no hidden plan drifting away from the conversation.
 
 ### Pi advances; you steer
 
@@ -97,12 +115,14 @@ The shortcuts wrap Pi’s active editor component. If your terminal workflow alr
 /todo reset                   Reset after confirmation
 ```
 
-## One list. Two operators.
+## One plan. Three roles.
 
 ```text
-YOU   inspect · choose · complete · reopen · override
-PI    plan · update · note · verify · advance
-BOTH  share the same current task, progress, and branch history
+MODEL  expands · reviews · explains · proposes
+YOU    judge · decompose · prioritize · redirect
+PI     record · execute · verify · advance
+
+SHARED current task · progress · context · branch history
 ```
 
 Pi gets a branch-aware `todo` tool:
@@ -114,7 +134,7 @@ remove · reorder · clear_done · replace
 
 The collaboration contract is simple:
 
-> Pi moves verified work forward. You can redirect it at any moment.
+> The model generates possibilities. You shape the plan. Pi helps execute it.
 
 The current task is always derived from the first unfinished item—there is no separate “active” flag to drift out of sync between human and agent.
 
