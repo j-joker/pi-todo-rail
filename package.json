@@ -1,6 +1,6 @@
 {
   "name": "pi-todo-rail",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A shared, branch-aware execution rail for humans and agents in Pi.",
   "type": "module",
   "license": "MIT",
@@ -35,7 +35,9 @@
   "pi": {
     "extensions": [
       "./index.ts"
-    ]
+    ],
+    "video": "https://raw.githubusercontent.com/j-joker/pi-todo-rail/main/assets/handoff.mp4",
+    "image": "https://raw.githubusercontent.com/j-joker/pi-todo-rail/main/assets/rail.png"
   },
   "scripts": {
     "test": "node --experimental-transform-types render.test.ts",

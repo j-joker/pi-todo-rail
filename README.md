@@ -8,17 +8,11 @@ Pi can plan the work, record context, and advance a step after verification. You
 
 `pi-todo-rail` is not an agent’s private checklist. It is the visible control surface between human judgment and agent execution.
 
-```text
-*  Verify the fix                         Ctrl+R previous · Ctrl+N done · 2/4
-```
+<p align="center">
+  <img src="https://raw.githubusercontent.com/j-joker/pi-todo-rail/main/assets/handoff.gif" width="900" alt="Real Pi terminal capture showing a verified task completing and the Todo rail handing off to the next task">
+</p>
 
-When the current step passes verification, the rail hands off—quietly:
-
-```text
-x  Verify the fix
-→  Run the regression suite
-*  Run the regression suite
-```
+<p align="center"><sub>Real Pi TUI · verified completion · non-blocking handoff</sub></p>
 
 No hidden agent checklist. No project file. No second source of truth.
 
@@ -31,7 +25,7 @@ pi install npm:pi-todo-rail
 Or pin the GitHub release:
 
 ```bash
-pi install git:github.com/j-joker/pi-todo-rail@v0.1.0
+pi install git:github.com/j-joker/pi-todo-rail@v0.1.1
 ```
 
 Try it without installing:
@@ -62,13 +56,11 @@ Todo snapshots live in the Pi session. Fork a conversation, navigate the tree, o
 
 Run `/todo`:
 
-```text
-  x  Ship the parser
-> *  Verify the fix
-     Write the changelog
+<p align="center">
+  <img src="https://raw.githubusercontent.com/j-joker/pi-todo-rail/main/assets/panel.png" width="900" alt="Real Pi terminal capture of the Todo panel with the human selection on a different task from the shared current task">
+</p>
 
-↑/↓ select   Enter current   Space done/reopen   Esc close
-```
+The screenshot is deliberate: `*` stays on the shared current task while `>` follows the human selection.
 
 The markers have one job each:
 

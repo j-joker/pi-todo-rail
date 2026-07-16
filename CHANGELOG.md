@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1 — 2026-07-16
+
+- Reframe the rail as a shared control surface for humans and agents.
+- Add real Pi TUI screenshots and an animated handoff capture.
+- Add video and image previews for the Pi package gallery.
+
 ## 0.1.0 — 2026-07-16
 
 - Add branch-aware Todo snapshots and restoration.
