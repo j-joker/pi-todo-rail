@@ -1,5 +1,10 @@
 # pi-todo-rail
 
+[![npm](https://img.shields.io/npm/v/pi-todo-rail)](https://www.npmjs.com/package/pi-todo-rail)
+[![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
+A Pi extension that turns model output into a persistent, branch-aware Todo list — pinned above the editor, shared between you and the agent.
+
 ## The output scrolls away. The plan stays.
 
 A model gives you a code review. Three findings. Clear priorities.
@@ -9,8 +14,6 @@ Then the conversation moves on.
 One command. One patch. One more answer. The findings are still there—but now you have to go looking for them.
 
 `pi-todo-rail` keeps the plan where the work happens: above the editor, visible to you and Pi.
-
-You stop scrolling back to remember what comes next.
 
 No scrollback archaeology. No hidden agent checklist. No second source of truth.
 
@@ -29,7 +32,7 @@ pi install npm:pi-todo-rail
 Or pin the GitHub release:
 
 ```bash
-pi install git:github.com/j-joker/pi-todo-rail@v0.1.2
+pi install git:github.com/j-joker/pi-todo-rail@v0.2.0
 ```
 
 Try it without installing:
@@ -37,6 +40,8 @@ Try it without installing:
 ```bash
 pi -e npm:pi-todo-rail
 ```
+
+Requires Pi 0.80+ (Node.js 22.19+ for development).
 
 ## Say it once
 
@@ -88,9 +93,7 @@ Most of the time, Todo Rail is one line:
 ● Todo  Remove reset-token logging                    0/3
 ```
 
-No dashboard. No permanent panel. Just the next thing that matters.
-
-When you want control, run `/todo`:
+Just the next thing that matters. When you want control, run `/todo`:
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/j-joker/pi-todo-rail/main/assets/panel.png" width="900" alt="Real Ghostty capture of the Todo panel with the human selection on a different task from the shared current task">
@@ -153,7 +156,7 @@ The rail remembers the decision without pretending the conversation never branch
 When the current task becomes done, the rail shows exactly what changed:
 
 ```text
-x old  →  → next  →  * next
+● done task  →  ✓ done task  →  ● next task
 ```
 
 <p align="center">
@@ -197,6 +200,23 @@ Validate the release tarball:
 ```bash
 npm run pack:check
 ```
+
+</details>
+
+<details>
+<summary><strong>FAQ</strong></summary>
+
+**`Ctrl+N` / `Ctrl+R` don’t work.**
+Your terminal or another extension probably owns the key. Everything the shortcuts do is also available through `/todo`.
+
+**Where is my Todo list stored?**
+In the Pi session itself. No project file, no database. Delete the session and the plan goes with it.
+
+**I resumed a session and see an older plan.**
+Each conversation branch keeps its own list. Check which branch you are on — the rail restores the latest snapshot of the *active* branch.
+
+**How do I turn off the handoff animation?**
+Start Pi with `TODO_MOTION=0`, or set `REDUCE_MOTION=1` / `PI_REDUCED_MOTION=1`.
 
 </details>
 
