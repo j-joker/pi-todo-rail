@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.2 — 2026-07-17
+
+- Add a real Pi TUI recording that demonstrates branch-specific Todo state restoring during `/tree` navigation.
+- Include the reproducible VHS tape and fixture used to generate the branch-aware demo.
+
 ## 0.2.1 — 2026-07-17
 
 - Clarify the package positioning with a concrete, benefit-led description.

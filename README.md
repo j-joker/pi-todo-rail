@@ -32,7 +32,7 @@ pi install npm:pi-todo-rail
 Or pin the GitHub release:
 
 ```bash
-pi install git:github.com/j-joker/pi-todo-rail@v0.2.1
+pi install git:github.com/j-joker/pi-todo-rail@v0.2.2
 ```
 
 Try it without installing:
@@ -96,7 +96,7 @@ Most of the time, Todo Rail is one line:
 Just the next thing that matters. When you want control, run `/todo`:
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/j-joker/pi-todo-rail/main/assets/panel.png" width="900" alt="Real Ghostty capture of the Todo panel with the human selection on a different task from the shared current task">
+  <img src="https://raw.githubusercontent.com/j-joker/pi-todo-rail/main/assets/panel.png" width="900" alt="Real current-config Pi capture showing the human selection on P2 while the shared current task remains P1">
 </p>
 
 The symbols do the work:
@@ -166,7 +166,7 @@ When the current task becomes done, the rail shows exactly what changed:
 ```
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/j-joker/pi-todo-rail/main/assets/handoff.gif" width="900" alt="Real Ghostty capture of Todo Rail completing one task and handing focus to the next">
+  <img src="https://raw.githubusercontent.com/j-joker/pi-todo-rail/main/assets/handoff.gif" width="900" alt="Real current-config Pi capture showing Ctrl+N completing P0 and Todo Rail handing off automatically to P1">
 </p>
 
 The animation lasts about 200ms. It never blocks input. It only plays when completed work causes a real handoff.

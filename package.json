@@ -1,6 +1,6 @@
 {
   "name": "pi-todo-rail",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Persistent, branch-aware Todo list for Pi — one plan shared by you and the agent, pinned above the editor.",
   "type": "module",
   "license": "MIT",
