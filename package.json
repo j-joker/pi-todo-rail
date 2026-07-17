@@ -1,7 +1,7 @@
 {
   "name": "pi-todo-rail",
   "version": "0.2.0",
-  "description": "Turn model output into a human-shaped, branch-aware execution rail for you and Pi.",
+  "description": "Persistent, branch-aware Todo list for Pi — one plan shared by you and the agent, pinned above the editor.",
   "type": "module",
   "license": "MIT",
   "author": "j-joker",
