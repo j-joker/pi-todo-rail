@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.1 — 2026-07-17
+
+- Clarify the package positioning with a concrete, benefit-led description.
+- Refresh the README with current install instructions, consistent status glyphs, compatibility requirements, and a short FAQ.
+- Add repository discovery metadata and a social preview card.
+
 ## 0.2.0 — 2026-07-17
 
 - Add a shared, theme-aware renderer inspired by Claude-style tool presentation.
