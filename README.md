@@ -149,6 +149,12 @@ Todo state lives in the Pi session—not in a project file or external database.
 
 Fork a conversation and each branch keeps its own plan. Navigate the tree or resume later and the right Todo list returns with it.
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/j-joker/pi-todo-rail/main/assets/branch-aware.gif" width="900" alt="Real Pi TUI capture switching between two conversation branches and restoring each branch's distinct Todo list">
+</p>
+
+<p align="center"><sub>Real Pi TUI · switch branches → restore the matching plan</sub></p>
+
 The rail remembers the decision without pretending the conversation never branched.
 
 ## A handoff you can see
