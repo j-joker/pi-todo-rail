@@ -3,8 +3,9 @@ import type { ExtensionAPI, ExtensionContext, Theme } from "@earendil-works/pi-c
 import { KeybindingsManager, TUI_KEYBINDINGS, visibleWidth } from "@earendil-works/pi-tui";
 import { formatTodoContext } from "./context.ts";
 import { TodoPanel, type TodoPanelAction } from "./panel.ts";
+import { todoTitle, todoTree } from "./render.ts";
 import { type Todo, TodoStore } from "./state.ts";
-import { registerTodoTool, styledList } from "./tool.ts";
+import { registerTodoTool } from "./tool.ts";
 import { clearTodoWidget, isTodoMotionEnabled, updateTodoWidget } from "./widget.ts";
 
 const theme = {
@@ -46,8 +47,8 @@ const defaultPanel = new TodoPanel(todos, theme, keybindings, (next) => {
 	action = next;
 });
 assert.ok(
-	defaultPanel.render(80).some((line) => line.includes("> *  Polish the selected execution step")),
-	"selected current row should render as > *",
+	defaultPanel.render(80).some((line) => line.includes("› ├─ ● #2 Polish the selected execution step")),
+	"selected current row should combine selection, branch, and current markers",
 );
 defaultPanel.handleInput("\r");
 assert.deepEqual(action, { type: "focus", id: 2 }, "panel should open on the current item");
@@ -116,7 +117,7 @@ for (const width of [10, 24, 40, 80]) {
 	}
 }
 assert.ok(widget.render(80)[0]?.includes("Polish the selected"), "widget should show the first unfinished task");
-assert.ok(widget.render(80)[0]?.trimStart().startsWith("*"), "widget should use * for the current todo");
+assert.ok(widget.render(80)[0]?.trimStart().startsWith("● Todo"), "widget should use the shared Todo title for the current item");
 assert.ok(widget.render(80)[0]?.includes("1/4"), "widget should show progress");
 assert.ok(widget.render(10)[0]?.includes("1/4"), "narrow widget should preserve progress");
 assert.ok(widget.render(80)[0]?.includes("Ctrl+R"), "widget should show the previous-item shortcut");
@@ -162,11 +163,11 @@ updateTodoWidget(
 );
 assert.ok(animationFactory, "animated widget factory should be registered");
 const animatedWidget = animationFactory!({ requestRender: () => requestedRenders++ }, theme);
-assert.ok(animatedWidget.render(80)[0]?.includes("x  Finish implementation"), "handoff should acknowledge the completed item first");
+assert.ok(animatedWidget.render(80)[0]?.includes("✓ Todo  Finish implementation"), "handoff should acknowledge the completed item first");
 await new Promise((resolve) => setTimeout(resolve, 40));
-assert.ok(animatedWidget.render(80)[0]?.includes("→  Run verification"), "handoff should point to the next item");
+assert.ok(animatedWidget.render(80)[0]?.includes("→ Todo  Run verification"), "handoff should point to the next item");
 await new Promise((resolve) => setTimeout(resolve, 40));
-assert.ok(animatedWidget.render(80)[0]?.includes("*  Run verification"), "handoff should settle on the new current item");
+assert.ok(animatedWidget.render(80)[0]?.includes("● Todo  Run verification"), "handoff should settle on the new current item");
 assert.ok(requestedRenders >= 2, "animation should request a render for each transition");
 clearTodoWidget(animationCtx);
 
@@ -181,18 +182,19 @@ const mixed: Todo[] = [
 	{ id: 7, text: "next d", done: false },
 	{ id: 8, text: "done three", done: true },
 ];
-const collapsed = styledList(mixed, false);
+assert.equal(todoTitle(theme, "3/8"), "● Todo 3/8");
+const collapsed = todoTree(mixed, theme, false);
 const collapsedLines = collapsed.split("\n");
-assert.ok(collapsedLines[0]?.includes("*") && collapsedLines[0]?.includes("current task"), "collapsed list should lead with the current marker");
-assert.equal(collapsedLines.length, 5, "collapsed list should show 4 unfinished items plus a summary");
-assert.ok(!collapsed.includes("done one"), "collapsed list should hide done history");
-assert.ok(collapsed.includes("x 3"), "collapsed summary should count hidden done items");
-assert.ok(collapsed.includes("+1 more"), "collapsed summary should count remaining unfinished items");
+assert.ok(collapsedLines[0]?.includes("●") && collapsedLines[0]?.includes("current task"), "collapsed tree should lead with the current marker");
+assert.equal(collapsedLines.length, 5, "collapsed tree should show 4 unfinished items plus a summary");
+assert.ok(!collapsed.includes("done one"), "collapsed tree should hide done history");
+assert.ok(collapsed.includes("3 done"), "collapsed summary should count hidden done items");
+assert.ok(collapsed.includes("1 more"), "collapsed summary should count remaining unfinished items");
 
-const expandedList = styledList(mixed, true);
-assert.equal(expandedList.split("\n").length, 8, "expanded list should show every item in order");
-assert.ok(expandedList.includes("x  #1 done one"), "expanded list should keep done markers");
-assert.equal(styledList(mixed.map((todo) => ({ ...todo, done: true })), false), "All done");
+const expandedList = todoTree(mixed, theme, true);
+assert.equal(expandedList.split("\n").length, 8, "expanded tree should show every item in order");
+assert.ok(expandedList.includes("✓ #1 done one"), "expanded tree should keep done markers");
+assert.equal(todoTree(mixed.map((todo) => ({ ...todo, done: true })), theme, false), "└─ … 8 done");
 
 // Store errors are model-facing and stay English.
 assert.throws(() => new TodoStore().remove(99), /Todo #99 not found\./);
@@ -209,8 +211,7 @@ registerTodoTool(
 assert.ok(registeredTool, "todo tool should register");
 assert.equal(registeredTool.renderShell, "self", "todo tool should bypass Pi's colored default shell");
 const callText = registeredTool.renderCall({ action: "add", text: "Verify tool card" }, theme).render(80).join("\n");
-assert.match(callText, /Todo\s+add/);
-assert.ok(!callText.includes("Verify tool card"), "call row should not repeat the todo text");
+assert.match(callText, /○\s+Todo\s+add Verify tool card/);
 
 const addResult = await registeredTool.execute(
 	"call-1",
@@ -224,10 +225,10 @@ assert.equal(addResult.details.action, "add");
 assert.equal(addResult.details.todo.id, 1);
 assert.equal(addResult.details.message, undefined, "tool details should be structured rather than prose-driven");
 const addCard = registeredTool.renderResult(addResult, { expanded: false }, theme).render(80).map((line: string) => line.trimEnd()).join("\n");
-assert.match(addCard, /^\+\s+#1\s+Verify tool card\s+0\/1$/);
+assert.match(addCard, /^\+\s+Added\s+#1\s+Verify tool card\s+0\/1$/);
 
 const doneCall = registeredTool.renderCall({ action: "done", id: 1 }, theme).render(80).join("\n");
-assert.match(doneCall, /Todo\s+done\s+#1/);
+assert.match(doneCall, /Todo\s+complete\s+#1/);
 const doneResult = await registeredTool.execute(
 	"call-2",
 	{ action: "done", id: 1 },
@@ -239,7 +240,7 @@ assert.equal(doneResult.content[0]?.text, "Completed #1: Verify tool card");
 assert.equal(doneResult.details.todo.done, true);
 assert.equal(toolStore.current(), undefined, "done should advance past the completed item");
 const doneCard = registeredTool.renderResult(doneResult, { expanded: false }, theme).render(80).map((line: string) => line.trimEnd()).join("\n");
-assert.match(doneCard, /^x\s+#1\s+Verify tool card\s+1\/1$/);
+assert.match(doneCard, /^✓\s+Completed\s+#1\s+Verify tool card\s+1\/1$/);
 
 const doneAgain = await registeredTool.execute(
 	"call-3",
@@ -258,6 +259,6 @@ const removeResult = await registeredTool.execute(
 	{} as ExtensionContext,
 );
 const removeCard = registeredTool.renderResult(removeResult, { expanded: false }, theme).render(80).map((line: string) => line.trimEnd()).join("\n");
-assert.match(removeCard, /^-\s+#1\s+Verify tool card$/);
+assert.match(removeCard, /^−\s+Removed\s+#1\s+Verify tool card$/);
 
 console.log("todo TUI render checks passed");

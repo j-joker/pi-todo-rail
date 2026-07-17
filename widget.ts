@@ -1,5 +1,6 @@
 import type { ExtensionContext, Theme } from "@earendil-works/pi-coding-agent";
 import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
+import { todoProgress } from "./render.ts";
 import type { Todo } from "./state.ts";
 
 const WIDGET_KEY = "todo-execution-rail";
@@ -15,7 +16,7 @@ interface TodoWidgetOptions {
 }
 
 interface RailFrame {
-	marker: "x" | "→" | "*";
+	marker: "✓" | "→" | "●";
 	text: string;
 	note?: string;
 	tone: "done" | "handoff" | "current";
@@ -50,14 +51,15 @@ export function clearTodoWidget(ctx: ExtensionContext): void {
 }
 
 function styledFrame(frame: RailFrame, theme: Theme): string {
-	const note = frame.note ? theme.fg("dim", ` (${frame.note})`) : "";
+	const label = theme.fg("toolTitle", theme.bold("Todo"));
+	const note = frame.note ? theme.fg("dim", `  ${frame.note}`) : "";
 	if (frame.tone === "done") {
-		return `${theme.fg("dim", frame.marker)}  ${theme.fg("dim", frame.text)}${note}`;
+		return `${theme.fg("success", frame.marker)} ${label}  ${theme.fg("dim", frame.text)}${note}`;
 	}
 	if (frame.tone === "handoff") {
-		return `${theme.fg("dim", frame.marker)}  ${theme.fg("text", frame.text)}${note}`;
+		return `${theme.fg("muted", frame.marker)} ${label}  ${theme.fg("text", frame.text)}${note}`;
 	}
-	return `${theme.fg("accent", frame.marker)}  ${theme.fg("text", frame.text)}${note}`;
+	return `${theme.fg("accent", frame.marker)} ${label}  ${theme.fg("text", frame.text)}${note}`;
 }
 
 export function updateTodoWidget(
@@ -74,7 +76,7 @@ export function updateTodoWidget(
 		return;
 	}
 
-	const done = todos.filter((todo) => todo.done).length;
+	const { done } = todoProgress(todos);
 	if (done === total) {
 		previousCurrent = undefined;
 		ctx.ui.setWidget(WIDGET_KEY, undefined);
@@ -93,11 +95,11 @@ export function updateTodoWidget(
 
 	const frames: RailFrame[] = shouldAnimate
 		? [
-				{ marker: "x", text: previous.text, note: previous.note, tone: "done" },
+				{ marker: "✓", text: previous.text, note: previous.note, tone: "done" },
 				{ marker: "→", text: current.text, note: current.note, tone: "handoff" },
-				{ marker: "*", text: current.text, note: current.note, tone: "current" },
+				{ marker: "●", text: current.text, note: current.note, tone: "current" },
 			]
-		: [{ marker: "*", text: current.text, note: current.note, tone: "current" }];
+		: [{ marker: "●", text: current.text, note: current.note, tone: "current" }];
 	previousCurrent = { ...current };
 
 	ctx.ui.setWidget(WIDGET_KEY, (tui, theme) => {

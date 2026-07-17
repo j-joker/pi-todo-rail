@@ -15,10 +15,10 @@ You stop scrolling back to remember what comes next.
 No scrollback archaeology. No hidden agent checklist. No second source of truth.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/j-joker/pi-todo-rail/main/assets/decompose.gif" width="900" alt="Real Ghostty capture showing review findings, the prompt Break these findings down into Todo tasks, and Pi creating a persistent Todo plan">
+  <img src="https://raw.githubusercontent.com/j-joker/pi-todo-rail/main/assets/decompose.gif" width="900" alt="Real Pi TUI capture showing review findings, a request to turn them into one Todo plan, and the background-free tree renderer creating a persistent execution rail">
 </p>
 
-<p align="center"><sub>Real Ghostty · real Pi TUI · one sentence → a plan that stays</sub></p>
+<p align="center"><sub>Real Pi TUI · one sentence → a plan that stays</sub></p>
 
 ## Install
 
@@ -57,7 +57,7 @@ P2  Reset tokens never expire
                          ↓
 
 TODO RAIL
-*  Remove reset-token logging                         0/3
+● Todo  Remove reset-token logging                    0/3
 ```
 
 The answer remains evidence. The rail becomes execution.
@@ -85,7 +85,7 @@ The first unfinished task is always current. There is no separate active flag to
 Most of the time, Todo Rail is one line:
 
 ```text
-*  Remove reset-token logging                         0/3
+● Todo  Remove reset-token logging                    0/3
 ```
 
 No dashboard. No permanent panel. Just the next thing that matters.
@@ -99,11 +99,13 @@ When you want control, run `/todo`:
 The symbols do the work:
 
 ```text
->    selected
-*    current
-x    done
+›    selected
+●    current
+○    pending
+✓    done
 
-> *  selected + current
+› ├─ ●  selected + current
+  └─ ○  pending
 ```
 
 The selection belongs to you. The current task belongs to the plan.

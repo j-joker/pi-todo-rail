@@ -1,5 +1,6 @@
 import type { Theme } from "@earendil-works/pi-coding-agent";
 import { type KeybindingsManager, Key, matchesKey, truncateToWidth } from "@earendil-works/pi-tui";
+import { currentTodoId, todoListLine, todoProgress, todoTitle } from "./render.ts";
 import type { Todo } from "./state.ts";
 
 export type TodoPanelAction =
@@ -51,25 +52,26 @@ export class TodoPanel {
 	render(width: number): string[] {
 		const renderWidth = Math.max(1, width);
 		const theme = this.theme;
-		const currentId = this.todos.find((todo) => !todo.done)?.id;
-		const lines: string[] = [""];
+		const currentId = currentTodoId(this.todos);
+		const progress = todoProgress(this.todos);
+		const titleState = progress.total > 0 && progress.done === progress.total ? "done" : "active";
+		const lines: string[] = ["", `  ${todoTitle(theme, progress.label, titleState)}`, ""];
 
 		if (this.todos.length === 0) {
-			lines.push(truncateToWidth(`  ${theme.fg("dim", "No todos")}`, renderWidth, ""));
+			lines.push(truncateToWidth(`  ${theme.fg("muted", "No todos")}`, renderWidth, ""));
 		} else {
 			const start = Math.max(0, Math.min(this.selected - Math.floor(this.maxVisible / 2), this.todos.length - this.maxVisible));
 			const end = Math.min(this.todos.length, start + this.maxVisible);
 			for (let index = start; index < end; index++) {
 				const todo = this.todos[index]!;
 				const selected = index === this.selected;
-				const selection = selected ? theme.fg("accent", ">") : " ";
-				const status = todo.done ? theme.fg("dim", "x") : todo.id === currentId ? theme.fg("accent", "*") : " ";
-				const text = theme.fg(todo.done ? "dim" : selected || todo.id === currentId ? "text" : "muted", todo.text);
-				const note = todo.note ? theme.fg("dim", ` (${todo.note})`) : "";
-				lines.push(truncateToWidth(`${selection} ${status}  ${text}${note}`, renderWidth, ""));
+				const selection = selected ? theme.fg("accent", "›") : " ";
+				const isLast = index === this.todos.length - 1;
+				const row = todoListLine(theme, todo, currentId, isLast ? "└─" : "├─", selected);
+				lines.push(truncateToWidth(`${selection} ${row}`, renderWidth, ""));
 			}
 			if (this.todos.length > this.maxVisible) {
-				lines.push(truncateToWidth(`  ${theme.fg("dim", `${start + 1}–${end} / ${this.todos.length}`)}`, renderWidth, ""));
+				lines.push(truncateToWidth(`  ${theme.fg("dim", `… ${start + 1}–${end} / ${this.todos.length}`)}`, renderWidth, ""));
 			}
 		}
 

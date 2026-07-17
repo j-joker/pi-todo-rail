@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0 — 2026-07-17
+
+- Add a shared, theme-aware renderer inspired by Claude-style tool presentation.
+- Unify tool receipts, the persistent rail, and the interactive panel around `✓` / `●` / `○` status glyphs and tree connectors.
+- Keep every Todo surface background-free while preserving semantic status colors.
+- Add collapsed execution summaries, expanded plan trees, and narrow-terminal-safe rendering.
+- Restore renderer tests and include the new render module in the npm package.
+
 ## 0.1.2 — 2026-07-16
 
 - Remove Pi's default colored Tool shell for fully plain-text Todo receipts.

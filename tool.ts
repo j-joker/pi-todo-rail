@@ -1,7 +1,8 @@
 import { StringEnum } from "@earendil-works/pi-ai";
-import type { ExtensionAPI, ExtensionContext, Theme } from "@earendil-works/pi-coding-agent";
+import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { Text } from "@earendil-works/pi-tui";
 import { Type } from "typebox";
+import { currentTodoId, todoProgress, todoTitle, todoTree } from "./render.ts";
 import type { Todo, TodoSnapshot, TodoStore } from "./state.ts";
 
 // The agent marks work done after implementation and verification. Reopening
@@ -39,45 +40,16 @@ function requireId(id: number | undefined): number {
 	return id;
 }
 
-function currentIdOf(todos: readonly Todo[]): number | undefined {
-	return todos.find((todo) => !todo.done)?.id;
-}
-
 /** Model-facing plain-text list. Kept in English so tool behavior is locale-independent. */
 function formatTodos(todos: readonly Todo[]): string {
 	if (todos.length === 0) return "No todos.";
-	const currentId = currentIdOf(todos);
+	const currentId = currentTodoId(todos);
 	return todos
 		.map((todo) => {
 			const marker = todo.done ? "x" : todo.id === currentId ? "*" : " ";
 			return `[${marker}] #${todo.id}: ${todo.text}${todo.note ? ` (${todo.note})` : ""}`;
 		})
 		.join("\n");
-}
-
-function styledLine(todo: Todo, currentId: number | undefined): string {
-	if (todo.done) return `x  #${todo.id} ${todo.text}`;
-	const marker = todo.id === currentId ? "*" : " ";
-	const note = todo.note ? ` (${todo.note})` : "";
-	return `${marker}  #${todo.id} ${todo.text}${note}`;
-}
-
-/** Collapsed view keeps the current item first; done history collapses into a count. */
-export function styledList(todos: readonly Todo[], expanded: boolean): string {
-	const currentId = currentIdOf(todos);
-	if (expanded) return todos.map((todo) => styledLine(todo, currentId)).join("\n");
-
-	const unfinished = todos.filter((todo) => !todo.done);
-	const doneCount = todos.length - unfinished.length;
-	if (unfinished.length === 0) return "All done";
-
-	const limit = 4;
-	const lines = unfinished.slice(0, limit).map((todo) => styledLine(todo, currentId));
-	const parts: string[] = [];
-	if (unfinished.length > limit) parts.push(`+${unfinished.length - limit} more`);
-	if (doneCount > 0) parts.push(`x ${doneCount}`);
-	if (parts.length > 0) lines.push(`   … ${parts.join(" · ")}`);
-	return lines.join("\n");
 }
 
 export function registerTodoTool(pi: ExtensionAPI, store: TodoStore, onChange: (ctx: ExtensionContext) => void): void {
@@ -189,69 +161,73 @@ export function registerTodoTool(pi: ExtensionAPI, store: TodoStore, onChange: (
 			};
 		},
 
-		renderCall(args, _theme) {
+		renderCall(args, theme) {
 			const id = args.id !== undefined ? ` #${args.id}` : "";
 			let body: string;
 			switch (args.action) {
-				case "list": body = "view"; break;
-				case "add": body = "add"; break;
+				case "list": body = "view plan"; break;
+				case "add": body = args.text ? `add ${args.text}` : "add item"; break;
 				case "update": body = `edit${id}`; break;
 				case "start": body = `set current${id}`; break;
-				case "done": body = `done${id}`; break;
+				case "done": body = `complete${id}`; break;
 				case "block": body = `note${id}`; break;
 				case "remove": body = `remove${id}`; break;
 				case "reorder": body = `move${id} ${args.beforeId !== undefined ? `before #${args.beforeId}` : "to end"}`; break;
-				case "clear_done": body = "clear done"; break;
-				case "replace": body = `plan ${args.items?.length ?? 0}`; break;
+				case "clear_done": body = "clear completed"; break;
+				case "replace": body = `replace plan · ${args.items?.length ?? 0} items`; break;
 				default: body = String(args.action);
 			}
-			return new Text(`Todo  ${body}`, 0, 0);
+			return new Text(`${theme.fg("muted", "○")} ${theme.fg("toolTitle", theme.bold("Todo"))} ${theme.fg("muted", body)}`, 0, 0);
 		},
 
-		renderResult(result, { expanded }, _theme) {
+		renderResult(result, { expanded }, theme) {
 			const details = result.details as TodoToolDetails | undefined;
 			const fallback = () => {
 				const content = result.content[0];
-				return new Text(content?.type === "text" ? content.text : "", 0, 0);
+				return new Text(theme.fg("muted", content?.type === "text" ? content.text : ""), 0, 0);
 			};
 			if (!details?.snapshot) return fallback();
 
 			const todos = details.snapshot.todos;
-			const total = todos.length;
-			const done = todos.filter((item) => item.done).length;
-			const progress = `${done}/${total}`;
-			const currentId = currentIdOf(todos);
-			const receipt = (line: string) => {
-				const summary = total > 0 ? `${line}  ${progress}` : line;
-				if (!expanded || total === 0) return new Text(summary, 0, 0);
-				return new Text(`${summary}\n\n${styledList(todos, true)}`, 0, 0);
+			const progress = todoProgress(todos);
+			const progressSuffix = progress.total > 0 ? `  ${theme.fg("dim", progress.label)}` : "";
+			const receipt = (glyph: string, tone: "success" | "accent" | "warning" | "muted", line: string) => {
+				const summary = `${theme.fg(tone, glyph)} ${line}${progressSuffix}`;
+				if (!expanded || progress.total === 0) return new Text(summary, 0, 0);
+				return new Text(`${summary}\n${todoTree(todos, theme, true)}`, 0, 0);
 			};
 
-			// Order-centric actions render as the list itself.
 			if (details.action === "list" || details.action === "reorder" || details.action === "replace") {
-				if (total === 0) return new Text("No todos", 0, 0);
-				return new Text(`${progress}\n${styledList(todos, expanded)}`, 0, 0);
+				const state = progress.total > 0 && progress.done === progress.total ? "done" : "active";
+				const title = todoTitle(theme, progress.label, state);
+				return new Text(`${title}\n${todoTree(todos, theme, expanded)}`, 0, 0);
 			}
 
 			if (details.action === "clear_done") {
-				return receipt(details.count ? `cleared ${details.count}` : "nothing to clear");
+				return details.count
+					? receipt("✓", "success", `${theme.fg("text", `Cleared ${details.count} completed`)}`)
+					: receipt("○", "muted", theme.fg("muted", "Nothing to clear"));
 			}
 
-			// Object-centric actions render the affected item's state.
 			const todo = details.todo;
 			if (!todo) return fallback();
-			const note = todo.note ? ` (${todo.note})` : "";
-			const marker = todo.done ? "x" : todo.id === currentId ? "*" : " ";
+			const item = `${theme.fg("dim", `#${todo.id}`)} ${theme.fg("text", todo.text)}${todo.note ? theme.fg("dim", `  ${todo.note}`) : ""}`;
 
 			switch (details.action) {
 				case "add":
-					return receipt(`+  #${todo.id}  ${todo.text}${note}`);
+					return receipt("+", "accent", `${theme.fg("text", "Added")}  ${item}`);
 				case "done":
-					return receipt(`x  #${todo.id}  ${todo.text}${note}`);
+					return receipt("✓", "success", `${theme.fg("text", "Completed")}  ${item}`);
 				case "remove":
-					return receipt(`-  #${todo.id}  ${todo.text}`);
+					return receipt("−", "warning", `${theme.fg("text", "Removed")}  ${theme.fg("dim", `#${todo.id}`)} ${theme.fg("muted", todo.text)}`);
+				case "block":
+					return receipt("!", "warning", `${theme.fg("text", "Noted")}  ${item}`);
+				case "start":
+					return receipt("●", "accent", `${theme.fg("text", "Current")}  ${item}`);
+				case "update":
+					return receipt("✓", "success", `${theme.fg("text", "Updated")}  ${item}`);
 				default:
-					return receipt(`${marker}  #${todo.id}  ${todo.text}${note}`);
+					return receipt("✓", "success", item);
 			}
 			},
 	});
