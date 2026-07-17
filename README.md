@@ -18,10 +18,10 @@ One command. One patch. One more answer. The findings are still there—but now 
 No scrollback archaeology. No hidden agent checklist. No second source of truth.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/j-joker/pi-todo-rail/main/assets/decompose.gif" width="900" alt="Real Pi TUI capture showing review findings, a request to turn them into one Todo plan, and the background-free tree renderer creating a persistent execution rail">
+  <img src="https://raw.githubusercontent.com/j-joker/pi-todo-rail/main/assets/decompose.gif" width="900" alt="Real Pi TUI capture showing Ctrl+N completing the current task, the rail handing off to the next item, and a human using the Todo panel to redirect priority">
 </p>
 
-<p align="center"><sub>Real Pi TUI · one sentence → a plan that stays</sub></p>
+<p align="center"><sub>Real Pi config · automatic handoff · human-directed priority</sub></p>
 
 ## Install
 
