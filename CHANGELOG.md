@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.3 — 2026-07-22
+
+- Fix duplicate "Todo" label in tool call rendering when pi TUI already displays the tool name.
+
 ## 0.2.2 — 2026-07-17
 
 - Add a real Pi TUI recording that demonstrates branch-specific Todo state restoring during `/tree` navigation.

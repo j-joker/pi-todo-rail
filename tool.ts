@@ -177,7 +177,7 @@ export function registerTodoTool(pi: ExtensionAPI, store: TodoStore, onChange: (
 				case "replace": body = `replace plan · ${args.items?.length ?? 0} items`; break;
 				default: body = String(args.action);
 			}
-			return new Text(`${theme.fg("muted", "○")} ${theme.fg("toolTitle", theme.bold("Todo"))} ${theme.fg("muted", body)}`, 0, 0);
+			return new Text(`${theme.fg("muted", "○")} ${theme.fg("muted", body)}`, 0, 0);
 		},
 
 		renderResult(result, { expanded }, theme) {
