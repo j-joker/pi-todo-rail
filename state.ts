@@ -170,6 +170,16 @@ export class TodoStore {
 		this.todos.splice(target, 0, todo!);
 	}
 
+	moveBy(id: number, direction: -1 | 1): boolean {
+		const index = this.todos.findIndex((todo) => todo.id === id);
+		if (index < 0) throw new Error(`Todo #${id} not found.`);
+		const target = index + direction;
+		if (target < 0 || target >= this.todos.length) return false;
+		const [todo] = this.todos.splice(index, 1);
+		this.todos.splice(target, 0, todo!);
+		return true;
+	}
+
 	clearDone(): number {
 		const before = this.todos.length;
 		this.todos = this.todos.filter((todo) => !todo.done);

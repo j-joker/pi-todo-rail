@@ -6,7 +6,10 @@ import type { Todo } from "./state.ts";
 export type TodoPanelAction =
 	| { type: "close" }
 	| { type: "focus"; id: number }
-	| { type: "toggle"; id: number };
+	| { type: "toggle"; id: number }
+	| { type: "move"; id: number; direction: -1 | 1 }
+	| { type: "edit"; id: number }
+	| { type: "remove"; id: number };
 
 function prettyKey(key: string | undefined, fallback: string): string {
 	if (!key) return fallback;
@@ -17,7 +20,7 @@ function prettyKey(key: string | undefined, fallback: string): string {
 		.join("+");
 }
 
-/** Minimal manual control: select, focus, toggle done, close. */
+/** Minimal manual control: select, reorder, focus, toggle done, close. */
 export class TodoPanel {
 	private selected = 0;
 	private readonly maxVisible = 10;
@@ -38,6 +41,8 @@ export class TodoPanel {
 
 	handleInput(data: string): void {
 		if (this.keybindings.matches(data, "tui.select.cancel")) return this.done({ type: "close" });
+		if (matchesKey(data, Key.alt("up"))) return this.moveSelected(-1);
+		if (matchesKey(data, Key.alt("down"))) return this.moveSelected(1);
 		if (this.keybindings.matches(data, "tui.select.up")) return this.moveSelection(-1);
 		if (this.keybindings.matches(data, "tui.select.down")) return this.moveSelection(1);
 		if (this.keybindings.matches(data, "tui.select.pageUp")) return this.moveSelection(-this.maxVisible);
@@ -47,6 +52,8 @@ export class TodoPanel {
 		if (!todo) return;
 		if (this.keybindings.matches(data, "tui.select.confirm")) return this.done({ type: "focus", id: todo.id });
 		if (matchesKey(data, Key.space)) return this.done({ type: "toggle", id: todo.id });
+		if (matchesKey(data, "e")) return this.done({ type: "edit", id: todo.id });
+		if (matchesKey(data, Key.delete)) return this.done({ type: "remove", id: todo.id });
 	}
 
 	render(width: number): string[] {
@@ -82,7 +89,14 @@ export class TodoPanel {
 		lines.push("");
 		lines.push(
 			truncateToWidth(
-				`  ${theme.fg("text", `${up}/${down}`)} ${theme.fg("dim", "select")}   ${theme.fg("text", enter)} ${theme.fg("dim", "current")}   ${theme.fg("text", "Space")} ${theme.fg("dim", "done/reopen")}   ${theme.fg("text", cancel)} ${theme.fg("dim", "close")}`,
+				`  ${theme.fg("text", `${up}/${down}`)} ${theme.fg("dim", "select")}   ${theme.fg("text", `Alt+${up}/${down}`)} ${theme.fg("dim", "move")}   ${theme.fg("text", enter)} ${theme.fg("dim", "current")}`,
+				renderWidth,
+				"",
+			),
+		);
+		lines.push(
+			truncateToWidth(
+				`  ${theme.fg("text", "E")} ${theme.fg("dim", "edit")}   ${theme.fg("text", "Space")} ${theme.fg("dim", "done/reopen")}   ${theme.fg("text", "Del")} ${theme.fg("dim", "remove")}   ${theme.fg("text", cancel)} ${theme.fg("dim", "close")}`,
 				renderWidth,
 				"",
 			),
@@ -96,5 +110,11 @@ export class TodoPanel {
 	private moveSelection(delta: number): void {
 		if (this.todos.length === 0) return;
 		this.selected = Math.max(0, Math.min(this.todos.length - 1, this.selected + delta));
+	}
+
+	private moveSelected(direction: -1 | 1): void {
+		const todo = this.todos[this.selected];
+		if (!todo || this.selected + direction < 0 || this.selected + direction >= this.todos.length) return;
+		this.done({ type: "move", id: todo.id, direction });
 	}
 }

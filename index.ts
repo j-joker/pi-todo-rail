@@ -142,8 +142,27 @@ export default function todoExtension(pi: ExtensionAPI): void {
 			if (!action || action.type === "close") break;
 
 			selectedId = action.id;
-			if (action.type === "focus") {
+			if (action.type === "edit") {
+				const todo = store.getAll().find((item) => item.id === action.id);
+				if (!todo) continue;
+				const text = await ctx.ui.editor("Edit todo", todo.text);
+				if (text === undefined || text.trim() === todo.text) continue;
+				if (!text.trim()) {
+					ctx.ui.notify("Todo text must not be empty.", "error");
+					continue;
+				}
+				store.update(action.id, text);
+			} else if (action.type === "remove") {
+				const todos = store.getAll();
+				const removedIndex = todos.findIndex((item) => item.id === action.id);
+				if (removedIndex < 0) continue;
+				store.remove(action.id);
+				const remaining = store.getAll();
+				selectedId = remaining[removedIndex]?.id ?? remaining[removedIndex - 1]?.id;
+			} else if (action.type === "focus") {
 				store.focus(action.id);
+			} else if (action.type === "move") {
+				if (!store.moveBy(action.id, action.direction)) continue;
 			} else {
 				const todo = store.getAll().find((item) => item.id === action.id);
 				if (todo) store.setDone(todo.id, !todo.done);
