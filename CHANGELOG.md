@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Let users move the selected panel item one position with `Alt+Up` or `Alt+Down` while keeping it selected.
+- Let users edit the selected item with prefilled text using `E`, or remove it using `Delete`, without a model turn.
+
 ## 0.2.2 — 2026-07-17
 
 - Add a real Pi TUI recording that demonstrates branch-specific Todo state restoring during `/tree` navigation.

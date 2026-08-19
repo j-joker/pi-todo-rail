@@ -62,6 +62,28 @@ assert.deepEqual(action, { type: "focus", id: 3 });
 action = undefined;
 actionPanel.handleInput(" ");
 assert.deepEqual(action, { type: "toggle", id: 3 });
+action = undefined;
+actionPanel.handleInput("\x1b[1;3A");
+assert.deepEqual(action, { type: "move", id: 3, direction: -1 });
+action = undefined;
+actionPanel.handleInput("\x1b[1;3B");
+assert.deepEqual(action, { type: "move", id: 3, direction: 1 });
+action = undefined;
+actionPanel.handleInput("e");
+assert.deepEqual(action, { type: "edit", id: 3 });
+action = undefined;
+actionPanel.handleInput("\x1b[3~");
+assert.deepEqual(action, { type: "remove", id: 3 });
+const actionLegend = actionPanel.render(120).join("\n");
+assert.match(actionLegend, /Alt\+↑\/↓ move/);
+assert.match(actionLegend, /E edit/);
+assert.match(actionLegend, /Del remove/);
+
+action = undefined;
+new TodoPanel(todos, theme, keybindings, (next) => { action = next; }, 1).handleInput("\x1b[1;3A");
+assert.equal(action, undefined, "first panel item cannot move up");
+new TodoPanel(todos, theme, keybindings, (next) => { action = next; }, 4).handleInput("\x1b[1;3B");
+assert.equal(action, undefined, "last panel item cannot move down");
 
 // The current item is derived, but users can switch it by moving one before it.
 const store = new TodoStore();
@@ -74,6 +96,25 @@ assert.equal(store.current()?.text, "Inspect the current terminal layout");
 assert.equal(store.current()?.done, false, "focusing a done task reopens it");
 store.setDone(store.current()!.id, true);
 assert.equal(store.current()?.text, "Verify narrow widths and 中文内容");
+
+// One-step reordering is deterministic, preserves identity, and no-ops at boundaries.
+const reorderStore = new TodoStore();
+reorderStore.replace([
+	{ text: "first" },
+	{ text: "second" },
+	{ text: "third" },
+]);
+assert.equal(reorderStore.moveBy(2, -1), true);
+assert.deepEqual(reorderStore.getAll().map((todo) => todo.text), ["second", "first", "third"]);
+assert.equal(reorderStore.current()?.id, 2, "moving an unfinished todo first should make it current");
+assert.equal(reorderStore.moveBy(2, -1), false, "first item cannot move up");
+assert.equal(reorderStore.moveBy(2, 1), true);
+assert.deepEqual(reorderStore.getAll().map((todo) => todo.text), ["first", "second", "third"]);
+assert.equal(reorderStore.moveBy(3, 1), false, "last item cannot move down");
+const reorderedSnapshot = reorderStore.getSnapshot();
+const restoredOrder = new TodoStore();
+restoredOrder.restore([{ type: "custom", customType: "todo-state", data: reorderedSnapshot }]);
+assert.deepEqual(restoredOrder.getAll(), reorderStore.getAll(), "session restoration should preserve manual order");
 
 // Old v1 snapshots (status-based) still restore.
 store.restore([

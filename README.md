@@ -113,6 +113,17 @@ The symbols do the work:
 
 The selection belongs to you. The current task belongs to the plan.
 
+Inside the panel, change the selected task directly without involving the model:
+
+```text
+Alt+Up      Move the selected task up one position
+Alt+Down    Move the selected task down one position
+E           Edit the selected task with its current text prefilled
+Delete      Remove the selected task
+```
+
+The selection follows moved tasks and advances to an adjacent task after removal. Because the first unfinished task is current, reordering or removing unfinished work can also redirect what comes next.
+
 ## Fast path
 
 ```text
